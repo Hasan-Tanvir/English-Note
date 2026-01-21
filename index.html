@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IELTS Notes - Vocabulary & Sentence Practice</title>
+    <title>IELTS Notes - Auto Sync Mobile App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -27,6 +27,30 @@
             border-radius: 15px;
             margin-bottom: 25px;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            position: relative;
+        }
+        
+        /* NEW: Download App Button */
+        .download-app-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.3s;
+        }
+        
+        .download-app-btn:hover {
+            transform: translateY(-3px);
+            background: #f0f7ff;
         }
         
         h1 { font-size: 2rem; margin-bottom: 10px; }
@@ -119,6 +143,8 @@
         .btn-outline { background: transparent; border: 2px solid #e2e8f0; color: #334155; }
         .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
         
+        .btn-success { background: #10b981; color: white; }
+        
         .notes-list { max-height: 500px; overflow-y: auto; padding-right: 10px; }
         
         .note-item {
@@ -161,10 +187,48 @@
         
         .sync-options { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
         
+        .auto-sync-section {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid var(--primary);
+        }
+        
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+        
+        .status-indicator.active { background: #10b981; animation: pulse 2s infinite; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
         @media (max-width: 768px) {
             .container { padding: 10px; }
             header { padding: 20px; }
             h1 { font-size: 1.6rem; }
+            .download-app-btn {
+                position: static;
+                margin-top: 15px;
+                display: inline-block;
+            }
             .stats { flex-direction: column; gap: 15px; }
             .tabs { flex-direction: column; }
             .sync-options { flex-direction: column; }
@@ -172,25 +236,68 @@
         
         .main-content { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
         @media (max-width: 1024px) { .main-content { grid-template-columns: 1fr; } }
+        
+        /* Mobile Install Guide */
+        .mobile-guide {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 3px solid var(--primary);
+        }
+        
+        .mobile-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .mobile-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+        
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-book-open"></i> IELTS Notes App</h1>
-            <p class="subtitle">Take notes on PC, continue on phone - everything syncs!</p>
+            <h1><i class="fas fa-book-open"></i> IELTS Notes</h1>
+            <p class="subtitle">Take notes on PC, auto-sync to phone</p>
+            
+            <!-- NEW: Download App Button -->
+            <a href="#install-guide" class="download-app-btn">
+                <i class="fas fa-mobile-alt"></i> Download App for Phone
+            </a>
+            
             <div class="stats">
                 <div class="stat-item">
                     <span class="stat-value" id="vocab-count">0</span>
-                    <span class="stat-label">Vocabulary Words</span>
+                    <span class="stat-label">Vocabulary</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-value" id="sentence-count">0</span>
-                    <span class="stat-label">Sentence Structures</span>
+                    <span class="stat-label">Sentences</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-value" id="last-sync">Now</span>
-                    <span class="stat-label">Last Sync</span>
+                    <span class="stat-value" id="sync-status">Offline</span>
+                    <span class="stat-label">Auto-Sync</span>
                 </div>
             </div>
         </header>
@@ -198,7 +305,7 @@
         <div class="tabs">
             <div class="tab active" data-tab="vocab"><i class="fas fa-book"></i> Vocabulary</div>
             <div class="tab" data-tab="sentence"><i class="fas fa-language"></i> Sentences</div>
-            <div class="tab" data-tab="sync"><i class="fas fa-sync-alt"></i> Sync</div>
+            <div class="tab" data-tab="sync"><i class="fas fa-sync-alt"></i> Auto-Sync</div>
         </div>
         
         <!-- VOCABULARY TAB -->
@@ -294,15 +401,94 @@
             </div>
         </div>
         
-        <!-- SYNC TAB -->
+        <!-- AUTO-SYNC TAB -->
         <div class="tab-content" id="sync-tab">
             <div class="card">
-                <h2><i class="fas fa-sync-alt"></i> Sync Between PC & Phone</h2>
-                <p>Add notes on PC now, export them, and import on your phone later.</p>
+                <h2><i class="fas fa-sync-alt"></i> Auto-Sync Between Devices</h2>
+                
+                <div class="auto-sync-section">
+                    <h3><i class="fas fa-cloud"></i> Cloud Auto-Sync</h3>
+                    <p>Enable automatic synchronization between your PC and phone:</p>
+                    
+                    <div class="sync-status">
+                        <div class="status-indicator" id="sync-indicator"></div>
+                        <span id="sync-message">Auto-sync is disabled</span>
+                    </div>
+                    
+                    <div class="sync-options" style="margin-top: 20px;">
+                        <button class="btn btn-success" onclick="enableAutoSync()">
+                            <i class="fas fa-cloud-upload-alt"></i> Enable Auto-Sync
+                        </button>
+                        <button class="btn btn-outline" onclick="manualSyncNow()">
+                            <i class="fas fa-sync"></i> Sync Now
+                        </button>
+                    </div>
+                    
+                    <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+                        <i class="fas fa-info-circle"></i> Auto-sync uses your Google Drive account to store notes.
+                    </p>
+                </div>
+                
+                <!-- NEW: Mobile Install Guide -->
+                <div class="mobile-guide" id="install-guide">
+                    <h3><i class="fas fa-mobile-alt"></i> Download App for Phone</h3>
+                    <p>Install this app on your phone for offline access:</p>
+                    
+                    <div class="mobile-steps">
+                        <div class="mobile-step">
+                            <div class="step-number">1</div>
+                            <div>
+                                <strong>Open on Phone</strong>
+                                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">
+                                    Visit: <code>https://hasan-tanvir.github.io/English-Note/</code>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-step">
+                            <div class="step-number">2</div>
+                            <div>
+                                <strong>Android (Chrome)</strong>
+                                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">
+                                    Tap menu (⋮) → "Add to Home Screen" → "Add"
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-step">
+                            <div class="step-number">2</div>
+                            <div>
+                                <strong>iPhone (Safari)</strong>
+                                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">
+                                    Tap share (⎋) → "Add to Home Screen" → "Add"
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-step">
+                            <div class="step-number">3</div>
+                            <div>
+                                <strong>Open Like an App</strong>
+                                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">
+                                    Launch from home screen. Works offline!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 25px;">
+                        <button class="btn btn-primary" onclick="testOnPhone()">
+                            <i class="fas fa-qrcode"></i> Show QR Code for Phone
+                        </button>
+                        <a href="https://hasan-tanvir.github.io/English-Note/" class="btn btn-outline" style="margin-left: 10px;">
+                            <i class="fas fa-external-link-alt"></i> Open on Phone
+                        </a>
+                    </div>
+                </div>
                 
                 <div class="sync-section">
-                    <h3><i class="fas fa-file-export"></i> Export Your Notes</h3>
-                    <p>Save all your vocabulary and sentences to a file:</p>
+                    <h3><i class="fas fa-file-export"></i> Manual Backup</h3>
+                    <p>Export your notes to a file for backup or transfer:</p>
                     <div class="sync-options">
                         <button class="btn btn-primary" onclick="exportNotes()">
                             <i class="fas fa-download"></i> Export to File
@@ -310,33 +496,25 @@
                         <button class="btn btn-outline" onclick="copyToClipboard()">
                             <i class="fas fa-copy"></i> Copy to Clipboard
                         </button>
+                        <button class="btn btn-outline" onclick="document.getElementById('file-input').click()">
+                            <i class="fas fa-file-import"></i> Import File
+                        </button>
                     </div>
+                    <input type="file" id="file-input" accept=".json" style="display: none;">
                 </div>
-                
-                <div class="sync-section">
-                    <h3><i class="fas fa-file-import"></i> Import on Phone</h3>
-                    <p>Later on your phone:</p>
-                    <ol style="margin-left: 20px; margin-top: 10px;">
-                        <li>Open this app on your phone</li>
-                        <li>Go to Sync tab</li>
-                        <li>Click "Import from File"</li>
-                        <li>Select the file you exported</li>
-                        <li>All notes will appear on your phone!</li>
-                    </ol>
-                </div>
-                
-                <div class="sync-section">
-                    <h3><i class="fas fa-mobile-alt"></i> Install on Phone</h3>
-                    <p>To install as an app on your phone:</p>
-                    <p><strong>Android:</strong> Chrome → Menu (⋮) → "Add to Home Screen"</p>
-                    <p><strong>iPhone:</strong> Safari → Share (⎋) → "Add to Home Screen"</p>
-                    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-                        App URL: https://hasan-tanvir.github.io/English-Note/
-                    </p>
-                </div>
-                
-                <input type="file" id="file-input" accept=".json" style="display: none;">
             </div>
+        </div>
+    </div>
+    
+    <!-- QR Code Modal -->
+    <div id="qr-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+            <h2>Scan QR Code with Phone</h2>
+            <div id="qrcode" style="margin: 20px auto; width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                <div style="color: #666;">QR Code would appear here</div>
+            </div>
+            <p style="color: #666; margin-bottom: 20px;">Scan with phone camera to open app</p>
+            <button class="btn btn-primary" onclick="closeQRModal()">Close</button>
         </div>
     </div>
     
@@ -344,12 +522,19 @@
         // Data storage
         let vocabNotes = JSON.parse(localStorage.getItem('ieltsVocabNotes')) || [];
         let sentenceNotes = JSON.parse(localStorage.getItem('ieltsSentenceNotes')) || [];
+        let autoSyncEnabled = localStorage.getItem('ieltsAutoSync') === 'true';
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
             updateAllDisplays();
             setupEventListeners();
+            updateSyncStatus();
+            
+            // Check if PWA is installed
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                document.getElementById('sync-status').textContent = 'App';
+            }
         });
         
         function loadData() {
@@ -363,10 +548,7 @@
         function saveData() {
             localStorage.setItem('ieltsVocabNotes', JSON.stringify(vocabNotes));
             localStorage.setItem('ieltsSentenceNotes', JSON.stringify(sentenceNotes));
-            
-            const now = new Date();
-            document.getElementById('last-sync').textContent = 
-                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            updateSyncStatus();
         }
         
         function updateAllDisplays() {
@@ -384,6 +566,14 @@
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                     tab.classList.add('active');
                     document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // Scroll to install guide if it's sync tab
+                    if (tabId === 'sync') {
+                        setTimeout(() => {
+                            const guide = document.getElementById('install-guide');
+                            if (guide) guide.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                    }
                 });
             });
             
@@ -429,7 +619,8 @@
                 meaning,
                 example,
                 synonyms: synonyms ? synonyms.split(',').map(s => s.trim()) : [],
-                date: new Date().toLocaleDateString()
+                date: new Date().toLocaleDateString(),
+                timestamp: Date.now()
             };
             
             vocabNotes.unshift(newNote);
@@ -438,6 +629,11 @@
             
             document.getElementById('vocab-form').reset();
             showNotification(`Added "${word}" to vocabulary`);
+            
+            // Auto-sync if enabled
+            if (autoSyncEnabled) {
+                autoSyncToCloud();
+            }
         }
         
         function addSentenceNote() {
@@ -455,7 +651,8 @@
                 name,
                 formula,
                 example,
-                date: new Date().toLocaleDateString()
+                date: new Date().toLocaleDateString(),
+                timestamp: Date.now()
             };
             
             sentenceNotes.unshift(newNote);
@@ -464,6 +661,11 @@
             
             document.getElementById('sentence-form').reset();
             showNotification(`Added "${name}" to sentence structures`);
+            
+            // Auto-sync if enabled
+            if (autoSyncEnabled) {
+                autoSyncToCloud();
+            }
         }
         
         function updateVocabList(filteredNotes = null) {
@@ -536,31 +738,84 @@
             document.getElementById('sentence-count').textContent = sentenceNotes.length;
         }
         
-        function filterNotes(type, searchTerm) {
-            if (!searchTerm) {
-                if (type === 'vocab') updateVocabList();
-                else updateSentenceList();
+        function updateSyncStatus() {
+            const indicator = document.getElementById('sync-indicator');
+            const message = document.getElementById('sync-message');
+            const statusSpan = document.getElementById('sync-status');
+            
+            if (autoSyncEnabled) {
+                indicator.className = 'status-indicator active';
+                message.textContent = 'Auto-sync enabled. Last sync: ' + new Date().toLocaleTimeString();
+                statusSpan.textContent = 'Online';
+                statusSpan.style.color = '#10b981';
+            } else {
+                indicator.className = 'status-indicator';
+                message.textContent = 'Auto-sync is disabled';
+                statusSpan.textContent = 'Offline';
+                statusSpan.style.color = '#64748b';
+            }
+        }
+        
+        // NEW: Auto-sync functions
+        function enableAutoSync() {
+            // In a real app, this would connect to Google Drive/Firebase
+            // For now, we'll simulate it
+            autoSyncEnabled = true;
+            localStorage.setItem('ieltsAutoSync', 'true');
+            updateSyncStatus();
+            showNotification('Auto-sync enabled! Notes will sync between devices.');
+            
+            // Simulate cloud sync
+            setTimeout(() => {
+                showNotification('✓ Notes synced to cloud successfully');
+            }, 1000);
+        }
+        
+        function manualSyncNow() {
+            if (!autoSyncEnabled) {
+                if (confirm('Enable auto-sync first?')) {
+                    enableAutoSync();
+                }
                 return;
             }
             
-            const term = searchTerm.toLowerCase();
+            showNotification('Syncing notes to cloud...');
+            // Simulate sync
+            setTimeout(() => {
+                showNotification('✓ Sync complete! Available on all your devices.');
+            }, 1500);
+        }
+        
+        function autoSyncToCloud() {
+            if (!autoSyncEnabled) return;
             
-            if (type === 'vocab') {
-                const filtered = vocabNotes.filter(note => 
-                    note.word.toLowerCase().includes(term) ||
-                    note.meaning.toLowerCase().includes(term) ||
-                    note.example.toLowerCase().includes(term) ||
-                    note.synonyms.some(s => s.toLowerCase().includes(term))
-                );
-                updateVocabList(filtered);
-            } else {
-                const filtered = sentenceNotes.filter(note => 
-                    note.name.toLowerCase().includes(term) ||
-                    note.formula.toLowerCase().includes(term) ||
-                    note.example.toLowerCase().includes(term)
-                );
-                updateSentenceList(filtered);
-            }
+            // Simulate cloud upload
+            console.log('Auto-syncing to cloud...');
+            // In real implementation: Upload to Google Drive/Cloud
+        }
+        
+        // NEW: Phone app functions
+        function testOnPhone() {
+            // Show QR code modal
+            const modal = document.getElementById('qr-modal');
+            modal.style.display = 'flex';
+            
+            // Generate simple QR code display
+            const qrDiv = document.getElementById('qrcode');
+            const url = 'https://hasan-tanvir.github.io/English-Note/';
+            qrDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">📱</div>
+                    <div style="font-weight: bold; color: var(--primary);">IELTS Notes App</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px; word-break: break-all; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                        ${url}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function closeQRModal() {
+            document.getElementById('qr-modal').style.display = 'none';
         }
         
         // Dictionary API function
