@@ -3,544 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IELTS Notes - Real Auto-Sync Active</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <title>IELTS Notes - Auto-Sync Ready</title>
     <style>
-        :root {
-            --primary: #3b82f6;
-            --secondary: #10b981;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            margin-bottom: 25px;
-        }
-        
-        h1 {
-            color: #1e293b;
-            margin-bottom: 10px;
-            font-size: 2.2rem;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        .status-connected { background: #d1fae5; color: #065f46; }
-        .status-disconnected { background: #fef3c7; color: #92400e; }
-        
-        .sync-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 25px 0;
-        }
-        
-        .btn {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s;
-        }
-        
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-warning { background: var(--warning); color: white; }
-        
-        .notes-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .stat-box {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            border: 2px solid #e2e8f0;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-            display: block;
-        }
-        
-        .sync-log {
-            background: #f1f5f9;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-        
-        .log-entry {
-            padding: 5px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .log-time { color: #64748b; font-size: 0.8rem; }
-        .log-success { color: var(--success); }
-        .log-error { color: var(--danger); }
-        
-        @media (max-width: 768px) {
-            .container { padding: 10px; }
-            .card { padding: 20px; }
-            h1 { font-size: 1.8rem; }
-            .sync-controls { grid-template-columns: 1fr; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 20px; }
+        .step { background: #f8fafc; padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 5px solid #667eea; }
+        .btn { background: #10b981; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 10px 5px; }
+        .code { background: #1e293b; color: white; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0; overflow-x: auto; }
+        .success { background: #d1fae5; color: #065f46; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #fee2e2; color: #dc2626; padding: 10px; border-radius: 5px; margin: 10px 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <h1>✅ IELTS Notes - Auto-Sync ACTIVE</h1>
-            <p style="color: #64748b; margin-bottom: 20px;">Your Supabase backend is connected and ready!</p>
-            
-            <div id="connection-status" class="status-badge status-connected">
-                <span id="status-icon">🔗</span>
-                <span id="status-text">Connected to Supabase</span>
+        <h1>🚀 IELTS Notes - Auto-Sync Setup</h1>
+        
+        <div class="step">
+            <h2>✅ Step 1: Create Supabase Table</h2>
+            <p>Run this SQL in Supabase SQL Editor:</p>
+            <div class="code">
+CREATE TABLE notes (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    data JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Create index for faster queries
+CREATE INDEX idx_notes_user_id ON notes(user_id);
+
+-- Enable Row Level Security (optional)
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow all operations (for testing)
+CREATE POLICY "Allow all operations" ON notes FOR ALL USING (true);
             </div>
-            
-            <div class="notes-stats">
-                <div class="stat-box">
-                    <span class="stat-value" id="local-vocab">0</span>
-                    <span>Local Vocabulary</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-value" id="local-sentences">0</span>
-                    <span>Local Sentences</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-value" id="cloud-vocab">0</span>
-                    <span>Cloud Vocabulary</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-value" id="cloud-sentences">0</span>
-                    <span>Cloud Sentences</span>
-                </div>
-            </div>
-            
-            <div class="sync-controls">
-                <button class="btn btn-success" onclick="enableAutoSync()" id="auto-sync-btn">
-                    <span id="sync-icon">🔄</span>
-                    <span id="sync-text">Enable Auto-Sync</span>
-                </button>
-                
-                <button class="btn btn-primary" onclick="uploadToCloud()" id="upload-btn">
-                    <span>☁️</span>
-                    <span>Upload to Cloud</span>
-                </button>
-                
-                <button class="btn btn-primary" onclick="downloadFromCloud()" id="download-btn">
-                    <span>📥</span>
-                    <span>Download from Cloud</span>
-                </button>
-                
-                <button class="btn btn-warning" onclick="resetSync()" id="reset-btn">
-                    <span>🔄</span>
-                    <span>Reset Sync</span>
-                </button>
-            </div>
-            
-            <div style="margin: 25px 0;">
-                <h3>📱 Share Your User ID for Phone Sync</h3>
-                <div style="background: #f0f9ff; padding: 15px; border-radius: 10px; margin-top: 10px;">
-                    <p>Your unique ID: <strong id="user-id">loading...</strong></p>
-                    <button class="btn btn-primary" onclick="copyUserId()" style="margin-top: 10px;">
-                        <span>📋</span>
-                        <span>Copy ID for Phone</span>
-                    </button>
-                    <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
-                        Enter this ID on your phone to sync automatically.
-                    </p>
-                </div>
-            </div>
-            
-            <div id="sync-log" class="sync-log">
-                <div class="log-entry">
-                    <span class="log-time">[00:00:00]</span>
-                    <span class="log-success">System initialized. Ready for sync.</span>
-                </div>
-            </div>
+            <button class="btn" onclick="copySQL()">📋 Copy SQL</button>
         </div>
         
-        <div class="card">
-            <h2>🚀 How to Sync to Phone</h2>
-            <ol style="margin-left: 20px; margin-top: 15px;">
-                <li><strong>On PC:</strong> Click "Enable Auto-Sync" above</li>
-                <li><strong>Copy your User ID</strong> (shown above)</li>
-                <li><strong>On Phone:</strong> Open the IELTS Notes app</li>
-                <li><strong>Paste your User ID</strong> in the sync settings</li>
-                <li><strong>Auto-sync will work instantly!</strong></li>
-            </ol>
-            
-            <div style="margin-top: 25px; padding: 20px; background: #fef3c7; border-radius: 10px;">
-                <h3>🔧 Technical Details</h3>
-                <p>Backend: <code>popabtduwmotxilapiai.supabase.co</code></p>
-                <p>Status: <span id="tech-status">Connected ✓</span></p>
-                <p>Last Ping: <span id="last-ping">--:--:--</span></p>
+        <div class="step">
+            <h2>🔧 Step 2: Test Connection</h2>
+            <p>Click to test your Supabase connection:</p>
+            <button class="btn" onclick="testConnection()">Test Connection</button>
+            <div id="test-result"></div>
+        </div>
+        
+        <div class="step">
+            <h2>📱 Step 3: Generate User ID</h2>
+            <p>Your unique sync ID: <strong id="user-id">Click generate below</strong></p>
+            <button class="btn" onclick="generateUserId()">Generate User ID</button>
+            <button class="btn" onclick="copyUserId()">Copy ID for Phone</button>
+        </div>
+        
+        <div class="step">
+            <h2>💾 Step 4: Quick Sync Demo</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <button class="btn" onclick="saveDemoData()">💾 Save Demo Note</button>
+                <button class="btn" onclick="loadFromCloud()">📥 Load from Cloud</button>
             </div>
+            <div id="demo-result" style="margin-top: 15px;"></div>
+        </div>
+        
+        <div class="step">
+            <h2>📖 Step 5: Launch Full App</h2>
+            <p>Once table is created, launch the full IELTS Notes app:</p>
+            <a href="full-app.html" style="display: inline-block; background: #3b82f6; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px;">
+                🚀 Launch IELTS Notes App
+            </a>
         </div>
     </div>
     
     <script>
-        // SUPABASE CONFIGURATION
+        // Your Supabase credentials
         const SUPABASE_URL = 'https://popabtduwmotxilapiai.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_23tG3Xh2oLleEm77sCN7pg_5uwfWi-2';
         
-        // Initialize Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let userId = localStorage.getItem('ielts_user_id') || null;
         
-        // App state
-        let autoSyncEnabled = false;
-        let syncInterval = null;
-        let userId = null;
-        
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', async function() {
-            logMessage('System starting...');
+        function copySQL() {
+            const sql = `CREATE TABLE notes (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    data JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+CREATE INDEX idx_notes_user_id ON notes(user_id);
+
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all operations" ON notes FOR ALL USING (true);`;
             
-            // Generate or load user ID
-            await initializeUserId();
-            
-            // Connect to Supabase
-            await testConnection();
-            
-            // Load local notes
-            loadLocalNotes();
-            
-            // Check cloud notes
-            await checkCloudNotes();
-            
-            logMessage('System ready for sync');
-        });
-        
-        // Generate unique user ID
-        async function initializeUserId() {
-            // Try to get existing user ID
-            userId = localStorage.getItem('ielts_user_id');
-            
-            if (!userId) {
-                // Generate new user ID
-                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('ielts_user_id', userId);
-                logMessage('Generated new user ID: ' + userId);
-            }
-            
-            document.getElementById('user-id').textContent = userId;
+            navigator.clipboard.writeText(sql)
+                .then(() => alert('SQL copied! Paste in Supabase SQL Editor.'));
         }
         
-        // Test Supabase connection
         async function testConnection() {
+            document.getElementById('test-result').innerHTML = '<div class="success">Testing connection...</div>';
+            
             try {
-                logMessage('Testing Supabase connection...');
-                
-                // Simple query to test connection
-                const { data, error } = await supabase
-                    .from('notes')
-                    .select('id')
-                    .limit(1);
-                
-                if (error) {
-                    if (error.message.includes('relation "notes" does not exist')) {
-                        logMessage('Creating notes table...');
-                        await createNotesTable();
-                    } else {
-                        throw error;
+                // Simple test using fetch
+                const response = await fetch(SUPABASE_URL + '/rest/v1/', {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
                     }
-                }
-                
-                updateStatus('✅ Connected to Supabase', true);
-                logMessage('Connection successful!');
-                updatePing();
-                
-            } catch (error) {
-                updateStatus('❌ Connection failed: ' + error.message, false);
-                logMessage('Connection error: ' + error.message, 'error');
-            }
-        }
-        
-        // Create notes table if it doesn't exist
-        async function createNotesTable() {
-            // We'll use Supabase's REST API to create table
-            // For now, we'll just inform user to create table
-            logMessage('Please create table in Supabase:', 'error');
-            logMessage('Table name: "notes"', 'error');
-            logMessage('Columns: id (text), user_id (text), data (jsonb), updated_at (timestamp)', 'error');
-            logMessage('Or run SQL: CREATE TABLE notes (id text, user_id text, data jsonb, updated_at timestamp);', 'error');
-        }
-        
-        // Enable auto-sync
-        async function enableAutoSync() {
-            if (autoSyncEnabled) {
-                disableAutoSync();
-                return;
-            }
-            
-            autoSyncEnabled = true;
-            document.getElementById('sync-icon').textContent = '✅';
-            document.getElementById('sync-text').textContent = 'Auto-Sync ON';
-            document.getElementById('auto-sync-btn').style.background = '#10b981';
-            
-            logMessage('Auto-sync enabled. Syncing every 30 seconds...');
-            
-            // Initial sync
-            await uploadToCloud();
-            
-            // Set up interval sync
-            syncInterval = setInterval(async () => {
-                await uploadToCloud();
-            }, 30000); // Every 30 seconds
-            
-            // Also sync when window loses focus (user switches to phone)
-            window.addEventListener('blur', async () => {
-                await uploadToCloud();
-            });
-        }
-        
-        // Disable auto-sync
-        function disableAutoSync() {
-            autoSyncEnabled = false;
-            clearInterval(syncInterval);
-            
-            document.getElementById('sync-icon').textContent = '🔄';
-            document.getElementById('sync-text').textContent = 'Enable Auto-Sync';
-            document.getElementById('auto-sync-btn').style.background = '';
-            
-            logMessage('Auto-sync disabled');
-        }
-        
-        // Upload notes to cloud
-        async function uploadToCloud() {
-            try {
-                logMessage('Uploading to cloud...');
-                
-                const localNotes = {
-                    vocab: JSON.parse(localStorage.getItem('ieltsVocabNotes') || '[]'),
-                    sentences: JSON.parse(localStorage.getItem('ieltsSentenceNotes') || '[]'),
-                    updated_at: new Date().toISOString()
-                };
-                
-                // Update stats
-                updateLocalStats(localNotes.vocab.length, localNotes.sentences.length);
-                
-                // Upload to Supabase
-                const { data, error } = await supabase
-                    .from('notes')
-                    .upsert({
-                        id: userId,
-                        user_id: userId,
-                        data: localNotes,
-                        updated_at: new Date().toISOString()
-                    }, {
-                        onConflict: 'id'
-                    });
-                
-                if (error) throw error;
-                
-                logMessage('✅ Upload successful!');
-                updateCloudStats(localNotes.vocab.length, localNotes.sentences.length);
-                updatePing();
-                
-            } catch (error) {
-                logMessage('❌ Upload failed: ' + error.message, 'error');
-            }
-        }
-        
-        // Download notes from cloud
-        async function downloadFromCloud() {
-            try {
-                logMessage('Downloading from cloud...');
-                
-                const { data, error } = await supabase
-                    .from('notes')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .single();
-                
-                if (error) {
-                    if (error.code === 'PGRST116') {
-                        logMessage('No data found in cloud. Upload first.');
-                    } else {
-                        throw error;
-                    }
-                    return;
-                }
-                
-                if (data && data.data) {
-                    // Confirm before overwriting
-                    if (confirm('Replace local notes with cloud version?')) {
-                        localStorage.setItem('ieltsVocabNotes', JSON.stringify(data.data.vocab || []));
-                        localStorage.setItem('ieltsSentenceNotes', JSON.stringify(data.data.sentences || []));
-                        
-                        loadLocalNotes();
-                        logMessage('✅ Download successful!');
-                        updatePing();
-                    }
-                }
-                
-            } catch (error) {
-                logMessage('❌ Download failed: ' + error.message, 'error');
-            }
-        }
-        
-        // Check cloud notes
-        async function checkCloudNotes() {
-            try {
-                const { data, error } = await supabase
-                    .from('notes')
-                    .select('data')
-                    .eq('user_id', userId)
-                    .single();
-                
-                if (!error && data && data.data) {
-                    updateCloudStats(data.data.vocab?.length || 0, data.data.sentences?.length || 0);
-                    logMessage('Cloud data found: ' + (data.data.vocab?.length || 0) + ' words');
-                }
-            } catch (error) {
-                // Ignore errors
-            }
-        }
-        
-        // Load local notes
-        function loadLocalNotes() {
-            const vocab = JSON.parse(localStorage.getItem('ieltsVocabNotes') || '[]');
-            const sentences = JSON.parse(localStorage.getItem('ieltsSentenceNotes') || '[]');
-            
-            updateLocalStats(vocab.length, sentences.length);
-            logMessage('Loaded ' + vocab.length + ' words, ' + sentences.length + ' sentences');
-        }
-        
-        // Update status display
-        function updateStatus(message, isConnected) {
-            const statusEl = document.getElementById('connection-status');
-            const iconEl = document.getElementById('status-icon');
-            const textEl = document.getElementById('status-text');
-            
-            if (isConnected) {
-                statusEl.className = 'status-badge status-connected';
-                iconEl.textContent = '✅';
-            } else {
-                statusEl.className = 'status-badge status-disconnected';
-                iconEl.textContent = '❌';
-            }
-            
-            textEl.textContent = message;
-            document.getElementById('tech-status').textContent = message;
-        }
-        
-        // Update stats
-        function updateLocalStats(vocabCount, sentenceCount) {
-            document.getElementById('local-vocab').textContent = vocabCount;
-            document.getElementById('local-sentences').textContent = sentenceCount;
-        }
-        
-        function updateCloudStats(vocabCount, sentenceCount) {
-            document.getElementById('cloud-vocab').textContent = vocabCount;
-            document.getElementById('cloud-sentences').textContent = sentenceCount;
-        }
-        
-        // Update ping time
-        function updatePing() {
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
-                           now.getMinutes().toString().padStart(2, '0') + ':' + 
-                           now.getSeconds().toString().padStart(2, '0');
-            document.getElementById('last-ping').textContent = timeStr;
-        }
-        
-        // Log messages
-        function logMessage(message, type = 'success') {
-            const logEl = document.getElementById('sync-log');
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
-                           now.getMinutes().toString().padStart(2, '0') + ':' + 
-                           now.getSeconds().toString().padStart(2, '0');
-            
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            entry.innerHTML = `
-                <span class="log-time">[${timeStr}]</span>
-                <span class="log-${type}">${message}</span>
-            `;
-            
-            logEl.prepend(entry);
-            
-            // Keep only last 10 entries
-            while (logEl.children.length > 10) {
-                logEl.removeChild(logEl.lastChild);
-            }
-        }
-        
-        // Copy user ID
-        function copyUserId() {
-            navigator.clipboard.writeText(userId)
-                .then(() => {
-                    logMessage('User ID copied to clipboard!');
-                    alert('User ID copied! Paste this on your phone to sync.');
-                })
-                .catch(() => {
-                    alert('Failed to copy. Your ID is: ' + userId);
                 });
-        }
-        
-        // Reset sync
-        function resetSync() {
-            if (confirm('Reset sync? This clears sync settings but keeps your notes.')) {
-                localStorage.removeItem('ielts_user_id');
-                localStorage.removeItem('ielts_last_sync');
-                autoSyncEnabled = false;
-                clearInterval(syncInterval);
                 
-                logMessage('Sync reset. Page will reload...');
-                setTimeout(() => location.reload(), 1000);
+                if (response.ok) {
+                    document.getElementById('test-result').innerHTML = 
+                        '<div class="success">✅ Connected to Supabase successfully!</div>';
+                } else {
+                    throw new Error('Failed to connect');
+                }
+            } catch (error) {
+                document.getElementById('test-result').innerHTML = 
+                    `<div class="error">❌ Connection failed. Make sure table exists.<br>Error: ${error.message}</div>`;
             }
         }
         
-        // Auto-save when leaving page
-        window.addEventListener('beforeunload', async (event) => {
-            if (autoSyncEnabled) {
-                await uploadToCloud();
+        function generateUserId() {
+            if (!userId) {
+                userId = 'ielts_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('ielts_user_id', userId);
             }
+            document.getElementById('user-id').textContent = userId;
+            return userId;
+        }
+        
+        function copyUserId() {
+            if (!userId) {
+                userId = generateUserId();
+            }
+            navigator.clipboard.writeText(userId)
+                .then(() => alert('User ID copied! Paste this on your phone app.'));
+        }
+        
+        async function saveDemoData() {
+            if (!userId) userId = generateUserId();
+            
+            const demoData = {
+                vocab: [{word: "ubiquitous", meaning: "found everywhere", example: "Smartphones are ubiquitous in modern society."}],
+                sentences: [{name: "Passive Voice", formula: "Subject + be + past participle", example: "The book was written by the author."}],
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch(SUPABASE_URL + '/rest/v1/notes', {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        data: demoData,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('demo-result').innerHTML = 
+                        '<div class="success">✅ Demo note saved to cloud! Check on your phone.</div>';
+                } else {
+                    const error = await response.text();
+                    throw new Error(error);
+                }
+            } catch (error) {
+                document.getElementById('demo-result').innerHTML = 
+                    `<div class="error">❌ Failed to save. Make sure table exists.<br>Run the SQL from Step 1.</div>`;
+            }
+        }
+        
+        async function loadFromCloud() {
+            if (!userId) userId = generateUserId();
+            
+            try {
+                const response = await fetch(
+                    SUPABASE_URL + `/rest/v1/notes?user_id=eq.${userId}&select=*&order=updated_at.desc&limit=1`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.length > 0) {
+                        document.getElementById('demo-result').innerHTML = 
+                            `<div class="success">✅ Found ${data.length} note(s) in cloud!<br>Last updated: ${new Date(data[0].updated_at).toLocaleString()}</div>`;
+                    } else {
+                        document.getElementById('demo-result').innerHTML = 
+                            '<div class="success">📭 No notes found in cloud. Save some first!</div>';
+                    }
+                } else {
+                    throw new Error('Failed to load');
+                }
+            } catch (error) {
+                document.getElementById('demo-result').innerHTML = 
+                    `<div class="error">❌ Failed to load. Table might not exist.<br>Run Step 1 SQL first.</div>`;
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (userId) {
+                document.getElementById('user-id').textContent = userId;
+            }
+            testConnection();
         });
     </script>
 </body>
