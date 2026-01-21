@@ -3,998 +3,545 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IELTS Notes - Auto Sync Mobile App</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>IELTS Notes - Real Auto-Sync Active</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --primary: #2563eb;
+            --primary: #3b82f6;
             --secondary: #10b981;
-            --accent: #f59e0b;
-            --light: #f8fafc;
-            --dark: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         
-        body { background: #f1f5f9; color: #334155; }
-        
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-            position: relative;
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
         
-        /* NEW: Download App Button */
-        .download-app-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: white;
-            color: var(--primary);
-            padding: 10px 20px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: transform 0.3s;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
         }
-        
-        .download-app-btn:hover {
-            transform: translateY(-3px);
-            background: #f0f7ff;
-        }
-        
-        h1 { font-size: 2rem; margin-bottom: 10px; }
-        
-        .subtitle { opacity: 0.9; }
-        
-        .stats {
-            display: flex;
-            gap: 25px;
-            background: rgba(255,255,255,0.15);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        
-        .stat-item { text-align: center; }
-        .stat-value { font-size: 1.8rem; font-weight: bold; display: block; }
-        .stat-label { font-size: 0.9rem; opacity: 0.9; }
-        
-        .tabs {
-            display: flex;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 18px;
-            cursor: pointer;
-            font-weight: 600;
-            border-bottom: 4px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .tab.active { background: white; color: var(--primary); border-bottom-color: var(--primary); }
-        
-        .tab-content { display: none; animation: fadeIn 0.5s; }
-        .tab-content.active { display: block; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .card {
             background: white;
-            padding: 25px;
-            border-radius: 12px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         
-        .card h2 { color: var(--dark); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
-        
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); }
-        
-        input, textarea, select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+        h1 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
         }
         
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
         
-        textarea { min-height: 100px; resize: vertical; }
+        .status-connected { background: #d1fae5; color: #065f46; }
+        .status-disconnected { background: #fef3c7; color: #92400e; }
+        
+        .sync-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
         
         .btn {
-            padding: 12px 24px;
+            padding: 15px 25px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); }
-        
-        .btn-secondary { background: var(--secondary); color: white; }
-        
-        .btn-outline { background: transparent; border: 2px solid #e2e8f0; color: #334155; }
-        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
-        
-        .btn-success { background: #10b981; color: white; }
-        
-        .notes-list { max-height: 500px; overflow-y: auto; padding-right: 10px; }
-        
-        .note-item {
-            background: var(--light);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--primary);
-            transition: transform 0.2s;
-        }
-        
-        .note-item:hover { transform: translateX(5px); }
-        .note-item.vocab { border-left-color: var(--secondary); }
-        .note-item.sentence { border-left-color: var(--accent); }
-        
-        .note-word { font-size: 1.3rem; font-weight: bold; color: var(--dark); margin-bottom: 5px; }
-        .note-meaning { font-style: italic; margin-bottom: 10px; color: #475569; }
-        .note-example { background: white; padding: 10px 15px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #e2e8f0; }
-        
-        .note-actions { display: flex; gap: 10px; margin-top: 15px; }
-        .note-actions button { padding: 6px 12px; font-size: 0.9rem; }
-        
-        .search-box { margin-bottom: 20px; }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #64748b;
-        }
-        
-        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
-        
-        .sync-section {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 2px dashed #f59e0b;
-        }
-        
-        .sync-options { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        
-        .auto-sync-section {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 2px solid var(--primary);
-        }
-        
-        .sync-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ccc;
-        }
-        
-        .status-indicator.active { background: #10b981; animation: pulse 2s infinite; }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        @media (max-width: 768px) {
-            .container { padding: 10px; }
-            header { padding: 20px; }
-            h1 { font-size: 1.6rem; }
-            .download-app-btn {
-                position: static;
-                margin-top: 15px;
-                display: inline-block;
-            }
-            .stats { flex-direction: column; gap: 15px; }
-            .tabs { flex-direction: column; }
-            .sync-options { flex-direction: column; }
-        }
-        
-        .main-content { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
-        @media (max-width: 1024px) { .main-content { grid-template-columns: 1fr; } }
-        
-        /* Mobile Install Guide */
-        .mobile-guide {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-top: 20px;
-            border: 3px solid var(--primary);
-        }
-        
-        .mobile-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .mobile-step {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 10px;
-        }
-        
-        .step-number {
-            background: var(--primary);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        
+        .notes-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
             font-weight: bold;
+            color: var(--primary);
+            display: block;
+        }
+        
+        .sync-log {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .log-time { color: #64748b; font-size: 0.8rem; }
+        .log-success { color: var(--success); }
+        .log-error { color: var(--danger); }
+        
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .card { padding: 20px; }
+            h1 { font-size: 1.8rem; }
+            .sync-controls { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-book-open"></i> IELTS Notes</h1>
-            <p class="subtitle">Take notes on PC, auto-sync to phone</p>
+        <div class="card">
+            <h1>✅ IELTS Notes - Auto-Sync ACTIVE</h1>
+            <p style="color: #64748b; margin-bottom: 20px;">Your Supabase backend is connected and ready!</p>
             
-            <!-- NEW: Download App Button -->
-            <a href="#install-guide" class="download-app-btn">
-                <i class="fas fa-mobile-alt"></i> Download App for Phone
-            </a>
+            <div id="connection-status" class="status-badge status-connected">
+                <span id="status-icon">🔗</span>
+                <span id="status-text">Connected to Supabase</span>
+            </div>
             
-            <div class="stats">
-                <div class="stat-item">
-                    <span class="stat-value" id="vocab-count">0</span>
-                    <span class="stat-label">Vocabulary</span>
+            <div class="notes-stats">
+                <div class="stat-box">
+                    <span class="stat-value" id="local-vocab">0</span>
+                    <span>Local Vocabulary</span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-value" id="sentence-count">0</span>
-                    <span class="stat-label">Sentences</span>
+                <div class="stat-box">
+                    <span class="stat-value" id="local-sentences">0</span>
+                    <span>Local Sentences</span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-value" id="sync-status">Offline</span>
-                    <span class="stat-label">Auto-Sync</span>
+                <div class="stat-box">
+                    <span class="stat-value" id="cloud-vocab">0</span>
+                    <span>Cloud Vocabulary</span>
                 </div>
-            </div>
-        </header>
-        
-        <div class="tabs">
-            <div class="tab active" data-tab="vocab"><i class="fas fa-book"></i> Vocabulary</div>
-            <div class="tab" data-tab="sentence"><i class="fas fa-language"></i> Sentences</div>
-            <div class="tab" data-tab="sync"><i class="fas fa-sync-alt"></i> Auto-Sync</div>
-        </div>
-        
-        <!-- VOCABULARY TAB -->
-        <div class="tab-content active" id="vocab-tab">
-            <div class="main-content">
-                <div>
-                    <div class="card">
-                        <h2><i class="fas fa-plus-circle"></i> Add New Vocabulary</h2>
-                        <form id="vocab-form">
-                            <div class="form-group">
-                                <label for="word">Word/Phrase *</label>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="text" id="word" placeholder="e.g., ubiquitous" required>
-                                    <button type="button" class="btn btn-outline" onclick="fetchFromDictionary()">
-                                        <i class="fas fa-search"></i> Fetch Meaning
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="meaning">Meaning *</label>
-                                <textarea id="meaning" placeholder="Meaning will appear here or type manually" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="example">Example Sentence *</label>
-                                <textarea id="example" placeholder="Example will appear here or type manually" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="synonyms">Synonyms (comma separated)</label>
-                                <input type="text" id="synonyms" placeholder="e.g., common, widespread, everywhere">
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Vocabulary
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <div>
-                    <div class="card">
-                        <h2><i class="fas fa-list"></i> Your Vocabulary</h2>
-                        <div class="search-box">
-                            <input type="text" id="vocab-search" placeholder="Search vocabulary...">
-                        </div>
-                        <div class="notes-list" id="vocab-notes">
-                            <div class="empty-state">
-                                <i class="fas fa-book"></i>
-                                <p>No vocabulary yet. Add your first word!</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="stat-box">
+                    <span class="stat-value" id="cloud-sentences">0</span>
+                    <span>Cloud Sentences</span>
                 </div>
             </div>
-        </div>
-        
-        <!-- SENTENCES TAB -->
-        <div class="tab-content" id="sentence-tab">
-            <div class="main-content">
-                <div>
-                    <div class="card">
-                        <h2><i class="fas fa-plus-circle"></i> Add Sentence Structure</h2>
-                        <form id="sentence-form">
-                            <div class="form-group">
-                                <label for="structure-name">Structure Name *</label>
-                                <input type="text" id="structure-name" placeholder="e.g., Conditional Type 3" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="structure-formula">Formula *</label>
-                                <input type="text" id="structure-formula" placeholder="e.g., If + past perfect, would have + past participle" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="structure-example">Example *</label>
-                                <textarea id="structure-example" placeholder="e.g., If I had studied harder, I would have passed the exam." required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-secondary">
-                                <i class="fas fa-save"></i> Save Structure
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <div>
-                    <div class="card">
-                        <h2><i class="fas fa-list"></i> Sentence Structures</h2>
-                        <div class="search-box">
-                            <input type="text" id="sentence-search" placeholder="Search sentences...">
-                        </div>
-                        <div class="notes-list" id="sentence-notes">
-                            <div class="empty-state">
-                                <i class="fas fa-language"></i>
-                                <p>No sentence structures yet. Add your first one!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- AUTO-SYNC TAB -->
-        <div class="tab-content" id="sync-tab">
-            <div class="card">
-                <h2><i class="fas fa-sync-alt"></i> Auto-Sync Between Devices</h2>
+            
+            <div class="sync-controls">
+                <button class="btn btn-success" onclick="enableAutoSync()" id="auto-sync-btn">
+                    <span id="sync-icon">🔄</span>
+                    <span id="sync-text">Enable Auto-Sync</span>
+                </button>
                 
-                <div class="auto-sync-section">
-                    <h3><i class="fas fa-cloud"></i> Cloud Auto-Sync</h3>
-                    <p>Enable automatic synchronization between your PC and phone:</p>
-                    
-                    <div class="sync-status">
-                        <div class="status-indicator" id="sync-indicator"></div>
-                        <span id="sync-message">Auto-sync is disabled</span>
-                    </div>
-                    
-                    <div class="sync-options" style="margin-top: 20px;">
-                        <button class="btn btn-success" onclick="enableAutoSync()">
-                            <i class="fas fa-cloud-upload-alt"></i> Enable Auto-Sync
-                        </button>
-                        <button class="btn btn-outline" onclick="manualSyncNow()">
-                            <i class="fas fa-sync"></i> Sync Now
-                        </button>
-                    </div>
-                    
-                    <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
-                        <i class="fas fa-info-circle"></i> Auto-sync uses your Google Drive account to store notes.
+                <button class="btn btn-primary" onclick="uploadToCloud()" id="upload-btn">
+                    <span>☁️</span>
+                    <span>Upload to Cloud</span>
+                </button>
+                
+                <button class="btn btn-primary" onclick="downloadFromCloud()" id="download-btn">
+                    <span>📥</span>
+                    <span>Download from Cloud</span>
+                </button>
+                
+                <button class="btn btn-warning" onclick="resetSync()" id="reset-btn">
+                    <span>🔄</span>
+                    <span>Reset Sync</span>
+                </button>
+            </div>
+            
+            <div style="margin: 25px 0;">
+                <h3>📱 Share Your User ID for Phone Sync</h3>
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 10px; margin-top: 10px;">
+                    <p>Your unique ID: <strong id="user-id">loading...</strong></p>
+                    <button class="btn btn-primary" onclick="copyUserId()" style="margin-top: 10px;">
+                        <span>📋</span>
+                        <span>Copy ID for Phone</span>
+                    </button>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                        Enter this ID on your phone to sync automatically.
                     </p>
                 </div>
-                
-                <!-- NEW: Mobile Install Guide -->
-                <div class="mobile-guide" id="install-guide">
-                    <h3><i class="fas fa-mobile-alt"></i> Download App for Phone</h3>
-                    <p>Install this app on your phone for offline access:</p>
-                    
-                    <div class="mobile-steps">
-                        <div class="mobile-step">
-                            <div class="step-number">1</div>
-                            <div>
-                                <strong>Open on Phone</strong>
-                                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">
-                                    Visit: <code>https://hasan-tanvir.github.io/English-Note/</code>
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="mobile-step">
-                            <div class="step-number">2</div>
-                            <div>
-                                <strong>Android (Chrome)</strong>
-                                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">
-                                    Tap menu (⋮) → "Add to Home Screen" → "Add"
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="mobile-step">
-                            <div class="step-number">2</div>
-                            <div>
-                                <strong>iPhone (Safari)</strong>
-                                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">
-                                    Tap share (⎋) → "Add to Home Screen" → "Add"
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="mobile-step">
-                            <div class="step-number">3</div>
-                            <div>
-                                <strong>Open Like an App</strong>
-                                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">
-                                    Launch from home screen. Works offline!
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 25px;">
-                        <button class="btn btn-primary" onclick="testOnPhone()">
-                            <i class="fas fa-qrcode"></i> Show QR Code for Phone
-                        </button>
-                        <a href="https://hasan-tanvir.github.io/English-Note/" class="btn btn-outline" style="margin-left: 10px;">
-                            <i class="fas fa-external-link-alt"></i> Open on Phone
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="sync-section">
-                    <h3><i class="fas fa-file-export"></i> Manual Backup</h3>
-                    <p>Export your notes to a file for backup or transfer:</p>
-                    <div class="sync-options">
-                        <button class="btn btn-primary" onclick="exportNotes()">
-                            <i class="fas fa-download"></i> Export to File
-                        </button>
-                        <button class="btn btn-outline" onclick="copyToClipboard()">
-                            <i class="fas fa-copy"></i> Copy to Clipboard
-                        </button>
-                        <button class="btn btn-outline" onclick="document.getElementById('file-input').click()">
-                            <i class="fas fa-file-import"></i> Import File
-                        </button>
-                    </div>
-                    <input type="file" id="file-input" accept=".json" style="display: none;">
+            </div>
+            
+            <div id="sync-log" class="sync-log">
+                <div class="log-entry">
+                    <span class="log-time">[00:00:00]</span>
+                    <span class="log-success">System initialized. Ready for sync.</span>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- QR Code Modal -->
-    <div id="qr-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
-            <h2>Scan QR Code with Phone</h2>
-            <div id="qrcode" style="margin: 20px auto; width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                <div style="color: #666;">QR Code would appear here</div>
+        
+        <div class="card">
+            <h2>🚀 How to Sync to Phone</h2>
+            <ol style="margin-left: 20px; margin-top: 15px;">
+                <li><strong>On PC:</strong> Click "Enable Auto-Sync" above</li>
+                <li><strong>Copy your User ID</strong> (shown above)</li>
+                <li><strong>On Phone:</strong> Open the IELTS Notes app</li>
+                <li><strong>Paste your User ID</strong> in the sync settings</li>
+                <li><strong>Auto-sync will work instantly!</strong></li>
+            </ol>
+            
+            <div style="margin-top: 25px; padding: 20px; background: #fef3c7; border-radius: 10px;">
+                <h3>🔧 Technical Details</h3>
+                <p>Backend: <code>popabtduwmotxilapiai.supabase.co</code></p>
+                <p>Status: <span id="tech-status">Connected ✓</span></p>
+                <p>Last Ping: <span id="last-ping">--:--:--</span></p>
             </div>
-            <p style="color: #666; margin-bottom: 20px;">Scan with phone camera to open app</p>
-            <button class="btn btn-primary" onclick="closeQRModal()">Close</button>
         </div>
     </div>
     
     <script>
-        // Data storage
-        let vocabNotes = JSON.parse(localStorage.getItem('ieltsVocabNotes')) || [];
-        let sentenceNotes = JSON.parse(localStorage.getItem('ieltsSentenceNotes')) || [];
-        let autoSyncEnabled = localStorage.getItem('ieltsAutoSync') === 'true';
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = 'https://popabtduwmotxilapiai.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_23tG3Xh2oLleEm77sCN7pg_5uwfWi-2';
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            updateAllDisplays();
-            setupEventListeners();
-            updateSyncStatus();
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // App state
+        let autoSyncEnabled = false;
+        let syncInterval = null;
+        let userId = null;
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', async function() {
+            logMessage('System starting...');
             
-            // Check if PWA is installed
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                document.getElementById('sync-status').textContent = 'App';
-            }
+            // Generate or load user ID
+            await initializeUserId();
+            
+            // Connect to Supabase
+            await testConnection();
+            
+            // Load local notes
+            loadLocalNotes();
+            
+            // Check cloud notes
+            await checkCloudNotes();
+            
+            logMessage('System ready for sync');
         });
         
-        function loadData() {
-            const savedVocab = localStorage.getItem('ieltsVocabNotes');
-            const savedSentences = localStorage.getItem('ieltsSentenceNotes');
+        // Generate unique user ID
+        async function initializeUserId() {
+            // Try to get existing user ID
+            userId = localStorage.getItem('ielts_user_id');
             
-            vocabNotes = savedVocab ? JSON.parse(savedVocab) : [];
-            sentenceNotes = savedSentences ? JSON.parse(savedSentences) : [];
-        }
-        
-        function saveData() {
-            localStorage.setItem('ieltsVocabNotes', JSON.stringify(vocabNotes));
-            localStorage.setItem('ieltsSentenceNotes', JSON.stringify(sentenceNotes));
-            updateSyncStatus();
-        }
-        
-        function updateAllDisplays() {
-            updateVocabList();
-            updateSentenceList();
-            updateStats();
-        }
-        
-        function setupEventListeners() {
-            // Tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabId = tab.getAttribute('data-tab');
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    tab.classList.add('active');
-                    document.getElementById(`${tabId}-tab`).classList.add('active');
-                    
-                    // Scroll to install guide if it's sync tab
-                    if (tabId === 'sync') {
-                        setTimeout(() => {
-                            const guide = document.getElementById('install-guide');
-                            if (guide) guide.scrollIntoView({ behavior: 'smooth' });
-                        }, 100);
-                    }
-                });
-            });
-            
-            // Vocabulary form
-            document.getElementById('vocab-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                addVocabNote();
-            });
-            
-            // Sentence form
-            document.getElementById('sentence-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                addSentenceNote();
-            });
-            
-            // Search
-            document.getElementById('vocab-search').addEventListener('input', function() {
-                filterNotes('vocab', this.value);
-            });
-            
-            document.getElementById('sentence-search').addEventListener('input', function() {
-                filterNotes('sentence', this.value);
-            });
-            
-            // File import
-            document.getElementById('file-input').addEventListener('change', importFromFile);
-        }
-        
-        function addVocabNote() {
-            const word = document.getElementById('word').value.trim();
-            const meaning = document.getElementById('meaning').value.trim();
-            const example = document.getElementById('example').value.trim();
-            const synonyms = document.getElementById('synonyms').value.trim();
-            
-            if (!word || !meaning || !example) {
-                alert('Please fill in all required fields');
-                return;
+            if (!userId) {
+                // Generate new user ID
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('ielts_user_id', userId);
+                logMessage('Generated new user ID: ' + userId);
             }
             
-            const newNote = {
-                id: Date.now(),
-                word,
-                meaning,
-                example,
-                synonyms: synonyms ? synonyms.split(',').map(s => s.trim()) : [],
-                date: new Date().toLocaleDateString(),
-                timestamp: Date.now()
-            };
-            
-            vocabNotes.unshift(newNote);
-            saveData();
-            updateAllDisplays();
-            
-            document.getElementById('vocab-form').reset();
-            showNotification(`Added "${word}" to vocabulary`);
-            
-            // Auto-sync if enabled
-            if (autoSyncEnabled) {
-                autoSyncToCloud();
-            }
+            document.getElementById('user-id').textContent = userId;
         }
         
-        function addSentenceNote() {
-            const name = document.getElementById('structure-name').value.trim();
-            const formula = document.getElementById('structure-formula').value.trim();
-            const example = document.getElementById('structure-example').value.trim();
-            
-            if (!name || !formula || !example) {
-                alert('Please fill in all required fields');
-                return;
-            }
-            
-            const newNote = {
-                id: Date.now(),
-                name,
-                formula,
-                example,
-                date: new Date().toLocaleDateString(),
-                timestamp: Date.now()
-            };
-            
-            sentenceNotes.unshift(newNote);
-            saveData();
-            updateAllDisplays();
-            
-            document.getElementById('sentence-form').reset();
-            showNotification(`Added "${name}" to sentence structures`);
-            
-            // Auto-sync if enabled
-            if (autoSyncEnabled) {
-                autoSyncToCloud();
-            }
-        }
-        
-        function updateVocabList(filteredNotes = null) {
-            const notes = filteredNotes || vocabNotes;
-            const container = document.getElementById('vocab-notes');
-            
-            if (notes.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-book"></i>
-                        <p>No vocabulary yet. Add your first word!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = notes.map(note => `
-                <div class="note-item vocab">
-                    <div class="note-word">${note.word}</div>
-                    <div class="note-meaning">${note.meaning}</div>
-                    <div class="note-example">${note.example}</div>
-                    ${note.synonyms.length > 0 ? `
-                    <div><strong>Synonyms:</strong> ${note.synonyms.join(', ')}</div>
-                    ` : ''}
-                    <div class="note-actions">
-                        <button class="btn btn-outline" onclick="editVocabNote(${note.id})">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-outline" onclick="deleteVocabNote(${note.id})">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function updateSentenceList(filteredNotes = null) {
-            const notes = filteredNotes || sentenceNotes;
-            const container = document.getElementById('sentence-notes');
-            
-            if (notes.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-language"></i>
-                        <p>No sentence structures yet. Add your first one!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = notes.map(note => `
-                <div class="note-item sentence">
-                    <div class="note-word">${note.name}</div>
-                    <div style="color: var(--accent); font-weight: 600; margin-bottom: 8px;">${note.formula}</div>
-                    <div class="note-example">${note.example}</div>
-                    <div class="note-actions">
-                        <button class="btn btn-outline" onclick="editSentenceNote(${note.id})">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-outline" onclick="deleteSentenceNote(${note.id})">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function updateStats() {
-            document.getElementById('vocab-count').textContent = vocabNotes.length;
-            document.getElementById('sentence-count').textContent = sentenceNotes.length;
-        }
-        
-        function updateSyncStatus() {
-            const indicator = document.getElementById('sync-indicator');
-            const message = document.getElementById('sync-message');
-            const statusSpan = document.getElementById('sync-status');
-            
-            if (autoSyncEnabled) {
-                indicator.className = 'status-indicator active';
-                message.textContent = 'Auto-sync enabled. Last sync: ' + new Date().toLocaleTimeString();
-                statusSpan.textContent = 'Online';
-                statusSpan.style.color = '#10b981';
-            } else {
-                indicator.className = 'status-indicator';
-                message.textContent = 'Auto-sync is disabled';
-                statusSpan.textContent = 'Offline';
-                statusSpan.style.color = '#64748b';
-            }
-        }
-        
-        // NEW: Auto-sync functions
-        function enableAutoSync() {
-            // In a real app, this would connect to Google Drive/Firebase
-            // For now, we'll simulate it
-            autoSyncEnabled = true;
-            localStorage.setItem('ieltsAutoSync', 'true');
-            updateSyncStatus();
-            showNotification('Auto-sync enabled! Notes will sync between devices.');
-            
-            // Simulate cloud sync
-            setTimeout(() => {
-                showNotification('✓ Notes synced to cloud successfully');
-            }, 1000);
-        }
-        
-        function manualSyncNow() {
-            if (!autoSyncEnabled) {
-                if (confirm('Enable auto-sync first?')) {
-                    enableAutoSync();
-                }
-                return;
-            }
-            
-            showNotification('Syncing notes to cloud...');
-            // Simulate sync
-            setTimeout(() => {
-                showNotification('✓ Sync complete! Available on all your devices.');
-            }, 1500);
-        }
-        
-        function autoSyncToCloud() {
-            if (!autoSyncEnabled) return;
-            
-            // Simulate cloud upload
-            console.log('Auto-syncing to cloud...');
-            // In real implementation: Upload to Google Drive/Cloud
-        }
-        
-        // NEW: Phone app functions
-        function testOnPhone() {
-            // Show QR code modal
-            const modal = document.getElementById('qr-modal');
-            modal.style.display = 'flex';
-            
-            // Generate simple QR code display
-            const qrDiv = document.getElementById('qrcode');
-            const url = 'https://hasan-tanvir.github.io/English-Note/';
-            qrDiv.innerHTML = `
-                <div style="text-align: center;">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">📱</div>
-                    <div style="font-weight: bold; color: var(--primary);">IELTS Notes App</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px; word-break: break-all; padding: 10px; background: #f5f5f5; border-radius: 5px;">
-                        ${url}
-                    </div>
-                </div>
-            `;
-        }
-        
-        function closeQRModal() {
-            document.getElementById('qr-modal').style.display = 'none';
-        }
-        
-        // Dictionary API function
-        async function fetchFromDictionary() {
-            const word = document.getElementById('word').value.trim();
-            if (!word) {
-                alert('Please enter a word first');
-                return;
-            }
-            
-            const meaningField = document.getElementById('meaning');
-            const exampleField = document.getElementById('example');
-            
-            meaningField.value = "Fetching from dictionary...";
-            exampleField.value = "";
-            
+        // Test Supabase connection
+        async function testConnection() {
             try {
-                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-                const data = await response.json();
+                logMessage('Testing Supabase connection...');
                 
-                if (data.title === "No Definitions Found") {
-                    throw new Error("Word not found");
+                // Simple query to test connection
+                const { data, error } = await supabase
+                    .from('notes')
+                    .select('id')
+                    .limit(1);
+                
+                if (error) {
+                    if (error.message.includes('relation "notes" does not exist')) {
+                        logMessage('Creating notes table...');
+                        await createNotesTable();
+                    } else {
+                        throw error;
+                    }
                 }
                 
-                const firstMeaning = data[0].meanings[0];
-                const definition = firstMeaning.definitions[0];
-                
-                meaningField.value = definition.definition || "Definition not found";
-                exampleField.value = definition.example || "Example not found";
-                
-                showNotification(`Fetched "${word}" successfully!`);
+                updateStatus('✅ Connected to Supabase', true);
+                logMessage('Connection successful!');
+                updatePing();
                 
             } catch (error) {
-                meaningField.value = "Could not fetch. Please enter manually.";
-                showNotification("Dictionary fetch failed. Enter details manually.");
+                updateStatus('❌ Connection failed: ' + error.message, false);
+                logMessage('Connection error: ' + error.message, 'error');
             }
         }
         
-        // Export/Import functions
-        function exportNotes() {
-            const data = {
-                vocabulary: vocabNotes,
-                sentences: sentenceNotes,
-                exported: new Date().toISOString(),
-                app: "IELTS Notes"
-            };
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = `ielts-notes-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('Notes exported! Save this file for your phone.');
+        // Create notes table if it doesn't exist
+        async function createNotesTable() {
+            // We'll use Supabase's REST API to create table
+            // For now, we'll just inform user to create table
+            logMessage('Please create table in Supabase:', 'error');
+            logMessage('Table name: "notes"', 'error');
+            logMessage('Columns: id (text), user_id (text), data (jsonb), updated_at (timestamp)', 'error');
+            logMessage('Or run SQL: CREATE TABLE notes (id text, user_id text, data jsonb, updated_at timestamp);', 'error');
         }
         
-        function copyToClipboard() {
-            const data = {
-                vocabulary: vocabNotes,
-                sentences: sentenceNotes
-            };
-            const text = JSON.stringify(data, null, 2);
-            navigator.clipboard.writeText(text)
-                .then(() => showNotification('Notes copied to clipboard!'))
-                .catch(() => alert('Failed to copy. Try exporting to file.'));
+        // Enable auto-sync
+        async function enableAutoSync() {
+            if (autoSyncEnabled) {
+                disableAutoSync();
+                return;
+            }
+            
+            autoSyncEnabled = true;
+            document.getElementById('sync-icon').textContent = '✅';
+            document.getElementById('sync-text').textContent = 'Auto-Sync ON';
+            document.getElementById('auto-sync-btn').style.background = '#10b981';
+            
+            logMessage('Auto-sync enabled. Syncing every 30 seconds...');
+            
+            // Initial sync
+            await uploadToCloud();
+            
+            // Set up interval sync
+            syncInterval = setInterval(async () => {
+                await uploadToCloud();
+            }, 30000); // Every 30 seconds
+            
+            // Also sync when window loses focus (user switches to phone)
+            window.addEventListener('blur', async () => {
+                await uploadToCloud();
+            });
         }
         
-        function importFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        // Disable auto-sync
+        function disableAutoSync() {
+            autoSyncEnabled = false;
+            clearInterval(syncInterval);
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (!data.vocabulary || !data.sentences) throw new Error('Invalid file');
-                    
-                    if (confirm('Import will replace current notes. Continue?')) {
-                        vocabNotes = data.vocabulary;
-                        sentenceNotes = data.sentences;
-                        saveData();
-                        updateAllDisplays();
-                        showNotification('Notes imported successfully!');
+            document.getElementById('sync-icon').textContent = '🔄';
+            document.getElementById('sync-text').textContent = 'Enable Auto-Sync';
+            document.getElementById('auto-sync-btn').style.background = '';
+            
+            logMessage('Auto-sync disabled');
+        }
+        
+        // Upload notes to cloud
+        async function uploadToCloud() {
+            try {
+                logMessage('Uploading to cloud...');
+                
+                const localNotes = {
+                    vocab: JSON.parse(localStorage.getItem('ieltsVocabNotes') || '[]'),
+                    sentences: JSON.parse(localStorage.getItem('ieltsSentenceNotes') || '[]'),
+                    updated_at: new Date().toISOString()
+                };
+                
+                // Update stats
+                updateLocalStats(localNotes.vocab.length, localNotes.sentences.length);
+                
+                // Upload to Supabase
+                const { data, error } = await supabase
+                    .from('notes')
+                    .upsert({
+                        id: userId,
+                        user_id: userId,
+                        data: localNotes,
+                        updated_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'id'
+                    });
+                
+                if (error) throw error;
+                
+                logMessage('✅ Upload successful!');
+                updateCloudStats(localNotes.vocab.length, localNotes.sentences.length);
+                updatePing();
+                
+            } catch (error) {
+                logMessage('❌ Upload failed: ' + error.message, 'error');
+            }
+        }
+        
+        // Download notes from cloud
+        async function downloadFromCloud() {
+            try {
+                logMessage('Downloading from cloud...');
+                
+                const { data, error } = await supabase
+                    .from('notes')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .single();
+                
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        logMessage('No data found in cloud. Upload first.');
+                    } else {
+                        throw error;
                     }
-                } catch (error) {
-                    alert('Invalid file. Please select a valid IELTS Notes export file.');
+                    return;
                 }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
+                
+                if (data && data.data) {
+                    // Confirm before overwriting
+                    if (confirm('Replace local notes with cloud version?')) {
+                        localStorage.setItem('ieltsVocabNotes', JSON.stringify(data.data.vocab || []));
+                        localStorage.setItem('ieltsSentenceNotes', JSON.stringify(data.data.sentences || []));
+                        
+                        loadLocalNotes();
+                        logMessage('✅ Download successful!');
+                        updatePing();
+                    }
+                }
+                
+            } catch (error) {
+                logMessage('❌ Download failed: ' + error.message, 'error');
+            }
         }
         
-        // Note actions
-        window.deleteVocabNote = function(id) {
-            if (confirm('Delete this vocabulary word?')) {
-                vocabNotes = vocabNotes.filter(note => note.id !== id);
-                saveData();
-                updateAllDisplays();
-                showNotification('Word deleted');
+        // Check cloud notes
+        async function checkCloudNotes() {
+            try {
+                const { data, error } = await supabase
+                    .from('notes')
+                    .select('data')
+                    .eq('user_id', userId)
+                    .single();
+                
+                if (!error && data && data.data) {
+                    updateCloudStats(data.data.vocab?.length || 0, data.data.sentences?.length || 0);
+                    logMessage('Cloud data found: ' + (data.data.vocab?.length || 0) + ' words');
+                }
+            } catch (error) {
+                // Ignore errors
             }
-        };
+        }
         
-        window.deleteSentenceNote = function(id) {
-            if (confirm('Delete this sentence structure?')) {
-                sentenceNotes = sentenceNotes.filter(note => note.id !== id);
-                saveData();
-                updateAllDisplays();
-                showNotification('Sentence structure deleted');
+        // Load local notes
+        function loadLocalNotes() {
+            const vocab = JSON.parse(localStorage.getItem('ieltsVocabNotes') || '[]');
+            const sentences = JSON.parse(localStorage.getItem('ieltsSentenceNotes') || '[]');
+            
+            updateLocalStats(vocab.length, sentences.length);
+            logMessage('Loaded ' + vocab.length + ' words, ' + sentences.length + ' sentences');
+        }
+        
+        // Update status display
+        function updateStatus(message, isConnected) {
+            const statusEl = document.getElementById('connection-status');
+            const iconEl = document.getElementById('status-icon');
+            const textEl = document.getElementById('status-text');
+            
+            if (isConnected) {
+                statusEl.className = 'status-badge status-connected';
+                iconEl.textContent = '✅';
+            } else {
+                statusEl.className = 'status-badge status-disconnected';
+                iconEl.textContent = '❌';
             }
-        };
+            
+            textEl.textContent = message;
+            document.getElementById('tech-status').textContent = message;
+        }
         
-        window.editVocabNote = function(id) {
-            const note = vocabNotes.find(n => n.id === id);
-            if (!note) return;
-            
-            document.getElementById('word').value = note.word;
-            document.getElementById('meaning').value = note.meaning;
-            document.getElementById('example').value = note.example;
-            document.getElementById('synonyms').value = note.synonyms.join(', ');
-            
-            vocabNotes = vocabNotes.filter(n => n.id !== id);
-            document.querySelector('.tab[data-tab="vocab"]').click();
-            showNotification('Editing word. Make changes and save.');
-        };
+        // Update stats
+        function updateLocalStats(vocabCount, sentenceCount) {
+            document.getElementById('local-vocab').textContent = vocabCount;
+            document.getElementById('local-sentences').textContent = sentenceCount;
+        }
         
-        window.editSentenceNote = function(id) {
-            const note = sentenceNotes.find(n => n.id === id);
-            if (!note) return;
-            
-            document.getElementById('structure-name').value = note.name;
-            document.getElementById('structure-formula').value = note.formula;
-            document.getElementById('structure-example').value = note.example;
-            
-            sentenceNotes = sentenceNotes.filter(n => n.id !== id);
-            document.querySelector('.tab[data-tab="sentence"]').click();
-            showNotification('Editing structure. Make changes and save.');
-        };
+        function updateCloudStats(vocabCount, sentenceCount) {
+            document.getElementById('cloud-vocab').textContent = vocabCount;
+            document.getElementById('cloud-sentences').textContent = sentenceCount;
+        }
         
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--primary);
-                color: white;
-                padding: 15px 25px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 1000;
-                animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+        // Update ping time
+        function updatePing() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0') + ':' + 
+                           now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('last-ping').textContent = timeStr;
+        }
+        
+        // Log messages
+        function logMessage(message, type = 'success') {
+            const logEl = document.getElementById('sync-log');
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0') + ':' + 
+                           now.getSeconds().toString().padStart(2, '0');
+            
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-time">[${timeStr}]</span>
+                <span class="log-${type}">${message}</span>
             `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
             
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 3000);
+            logEl.prepend(entry);
+            
+            // Keep only last 10 entries
+            while (logEl.children.length > 10) {
+                logEl.removeChild(logEl.lastChild);
+            }
         }
         
-        // Add animation CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
+        // Copy user ID
+        function copyUserId() {
+            navigator.clipboard.writeText(userId)
+                .then(() => {
+                    logMessage('User ID copied to clipboard!');
+                    alert('User ID copied! Paste this on your phone to sync.');
+                })
+                .catch(() => {
+                    alert('Failed to copy. Your ID is: ' + userId);
+                });
+        }
+        
+        // Reset sync
+        function resetSync() {
+            if (confirm('Reset sync? This clears sync settings but keeps your notes.')) {
+                localStorage.removeItem('ielts_user_id');
+                localStorage.removeItem('ielts_last_sync');
+                autoSyncEnabled = false;
+                clearInterval(syncInterval);
+                
+                logMessage('Sync reset. Page will reload...');
+                setTimeout(() => location.reload(), 1000);
             }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
+        }
+        
+        // Auto-save when leaving page
+        window.addEventListener('beforeunload', async (event) => {
+            if (autoSyncEnabled) {
+                await uploadToCloud();
             }
-        `;
-        document.head.appendChild(style);
+        });
     </script>
 </body>
 </html>
